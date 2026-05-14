@@ -1,46 +1,28 @@
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class Goomba : MonoBehaviour
-{
-    public Sprite flatSprite;
+public class Goomba : Enemy {
+	private Animator m_Animator;
+	private float stompedDuration = 0.5f;
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            Player player = collision.gameObject.GetComponent<Player>();
+	// Use this for initialization
+	void Start () {
+		m_Animator = GetComponent<Animator> ();
 
-            if (player.starpower) {
-                Hit();
-            } else if (collision.transform.DotTest(transform, Vector2.down)) {
-                Flatten();
-            } else {
-                player.Hit();
-            }
-        }
-    }
+		starmanBonus = 100;
+		rollingShellBonus = 500;
+		hitByBlockBonus = 100;
+		fireballBonus = 100;
+		stompBonus = 100;
+	}
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Shell")) {
-            Hit();
-        }
-    }
-
-    private void Flatten()
-    {
-        GetComponent<Collider2D>().enabled = false;
-        GetComponent<EntityMovement>().enabled = false;
-        GetComponent<AnimatedSprite>().enabled = false;
-        GetComponent<SpriteRenderer>().sprite = flatSprite;
-        Destroy(gameObject, 0.5f);
-    }
-
-    private void Hit()
-    {
-        GetComponent<AnimatedSprite>().enabled = false;
-        GetComponent<DeathAnimation>().enabled = true;
-        Destroy(gameObject, 3f);
-    }
-
+	public override void StompedByMario() {
+		isBeingStomped = true;
+		StopInteraction ();
+		Debug.Log (this.name + " StompedByMario: stopped interaction");
+		m_Animator.SetTrigger ("stomped");
+		Destroy (gameObject, stompedDuration);
+		isBeingStomped = false;
+	}
 }
